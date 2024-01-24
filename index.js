@@ -11,7 +11,11 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:5000"],
+    origin: [
+      "http://localhost:3002",
+      "http://localhost:5000",
+      "https://landing-page-qris.vercel.app/",
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -20,7 +24,11 @@ const io = new Server(server, {
 // Gunakan middleware cors
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5000"], // atau origin aplikasi frontend Anda
+    origin: [
+      "http://localhost:3002",
+      "http://localhost:5000",
+      "https://landing-page-qris.vercel.app/",
+    ], // atau origin aplikasi frontend Anda
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })
