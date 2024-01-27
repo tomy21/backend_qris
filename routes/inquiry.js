@@ -3,12 +3,13 @@ const http = require("http"); // Import modul http untuk membuat permintaan HTTP
 const router = express.Router();
 const bodyParser = require("body-parser");
 const cors = require("cors");
+require("dotenv").config();
 
 router.use(bodyParser.json());
 router.use(
   cors({
     origin: [
-      process.env.CORS_URL_1,
+      "http://localhost:3000",
       process.env.CORS_URL_2,
       process.env.CORS_URL_3,
     ], // atau origin aplikasi frontend Anda
