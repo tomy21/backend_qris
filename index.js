@@ -9,17 +9,7 @@ console.log(readdirSync("./routes"));
 const app = express();
 const server = createServer(app);
 
-app.use(
-  cors({
-    origin: [
-      process.env.CORS_URL_1,
-      process.env.CORS_URL_2,
-      process.env.CORS_URL_3,
-    ], // atau origin aplikasi frontend Anda
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(bodyParser.json());
 
