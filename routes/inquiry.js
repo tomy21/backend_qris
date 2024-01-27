@@ -1,6 +1,5 @@
 const express = require("express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
-const express = require("express");
 const router = express.Router();
 const { createServer } = require("http");
 const cors = require("cors");
@@ -34,7 +33,6 @@ router.use(
 );
 
 const bodyParser = require("body-parser");
-const { createServer } = require("http");
 
 router.use(bodyParser.json());
 
