@@ -12,7 +12,9 @@ app.use(bodyParser.json());
 
 const paymentConfirmation = require("./routes/payment.js");
 const transaksi = require("./routes/transaksi.js");
-const inquiry = require("./routes/inquiry.js");
+const inquiryTransaksi = require("./routes/inquiry.js");
+
+app.post("/api/inquiry", inquiryTransaksi);
 
 app.get("/api/payment-confirm", paymentConfirmation);
 app.get("/api/payment", paymentConfirmation);
