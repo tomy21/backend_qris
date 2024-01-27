@@ -11,7 +11,8 @@ const server = createServer(app);
 app.use(bodyParser.json());
 
 const paymentConfirmation = require("./routes/payment.js");
-const transaksi = require("./routes/transaksi");
+const transaksi = require("./routes/transaksi.js");
+const inquiry = require("./routes/inquiry.js");
 
 app.get("/api/payment-confirm", paymentConfirmation);
 app.get("/api/payment", paymentConfirmation);

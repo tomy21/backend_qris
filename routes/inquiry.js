@@ -1,19 +1,21 @@
 const express = require("express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const bodyParser = require("body-parser");
+const { createServer } = require("http");
 
 const app = express();
+const server = createServer(app);
 
-// Atur middleware proxy untuk meneruskan permintaan ke backend eksternal
-app.use(
-  "/general",
-  createProxyMiddleware({
-    target: "http://147.139.135.195:2101",
-    changeOrigin: true,
-  })
-);
+app.use(bodyParser.json());
 
-// Jalankan server di port tertentu
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server berjalan di port ${port}`);
+app.post("/api/inquiry", (req, res) => {
+  const apiUrl =
+    "http://147.139.135.195:2101/general/Partner/InquiryTransaction";
+  createProxyMiddleware({ target: apiUrl })(req, res);
+});
+
+// Atur server untuk mendengarkan port tertentu
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server running at http://127.0.0.1:${PORT}`);
 });
