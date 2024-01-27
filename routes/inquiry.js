@@ -9,7 +9,7 @@ router.use(bodyParser.json());
 router.use(
   cors({
     origin: [
-      "http://localhost:3000",
+      process.env.CORS_URL_1,
       process.env.CORS_URL_2,
       process.env.CORS_URL_3,
     ], // atau origin aplikasi frontend Anda
