@@ -19,17 +19,7 @@ const io = new Server(server, {
   },
 });
 
-router.use(
-  cors({
-    origin: [
-      process.env.CORS_URL_1,
-      process.env.CORS_URL_2,
-      process.env.CORS_URL_3,
-    ], // atau origin aplikasi frontend Anda
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
+router.use(cors());
 
 router.get("/", async (req, res) => {
   const sql =

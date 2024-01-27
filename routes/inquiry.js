@@ -6,17 +6,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 router.use(bodyParser.json());
-router.use(
-  cors({
-    origin: [
-      process.env.CORS_URL_1,
-      process.env.CORS_URL_2,
-      process.env.CORS_URL_3,
-    ], // atau origin aplikasi frontend Anda
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
+
 router.post("/api/inquiry", (req, res) => {
   try {
     const postData = JSON.stringify(req.body);
