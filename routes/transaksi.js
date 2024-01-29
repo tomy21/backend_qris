@@ -9,11 +9,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [
-      process.env.CORS_URL_1,
-      process.env.CORS_URL_2,
-      process.env.CORS_URL_3,
-    ],
+    origin: [process.env.CORS_URL_1, process.env.CORS_URL_2],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -104,7 +100,7 @@ router.get("/transaksi/export", async (req, res) => {
   }
 });
 
-router.get("/summary", async (req, res) => {
+router.get("/transaksi/summary", async (req, res) => {
   const currentSummarySql = `
         SELECT 
             COALESCE(SUM(tariff), 0) as totalTariff,
