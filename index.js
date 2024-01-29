@@ -5,9 +5,15 @@ const { readdirSync } = require("fs");
 require("dotenv").config();
 const cors = require("cors");
 console.log(readdirSync("./routes"));
-
 const app = express();
 const server = createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server, {
+  cors: {
+    origin: ["http://127.0.0.1:3000"],
+    methods: ["GET", "POST"],
+  },
+});
 
 app.use(cors());
 
@@ -27,6 +33,10 @@ app.get("/transaksi/export", transaksi);
 app.get("/transaksi/summary", transaksi);
 app.get("/transactions", transaksi);
 app.get("/transaksi/weeklySumary", transaksi);
+
+io.on("connection", (socket) => {
+  console.log("a user connected", socket.id);
+});
 
 const PORT = process.env.PORT || 3002; // Menggunakan variabel PORT
 server.listen(PORT, () => {

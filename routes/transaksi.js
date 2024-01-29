@@ -23,7 +23,7 @@ router.use(cors());
 
 router.get("/", async (req, res) => {
   const sql =
-    "SELECT tbl_transaksis.id_transaksi, tbl_transaksis.type, tbl_lokasi.Name, tbl_transaksis.inTime,tbl_transaksis.outTime,tbl_transaksis.payTime, tbl_transaksis.amount, tbl_transaksis.updated_at FROM `tbl_transaksis` JOIN tbl_gate ON tbl_gate.id = tbl_transaksis.id_gate JOIN tbl_lokasi ON tbl_lokasi.id = tbl_gate.id_location ORDER BY updated_at DESC LIMIT 10";
+    "SELECT SimulatorParking.TransactionNo, SimulatorParking.VehicleType, SimulatorParking.LocationName, SimulatorParking.InTime,SimulatorParking.OutTime,SimulatorParking.PaymentDate, SimulatorParking.tariff FROM `SimulatorParking` ORDER BY CreatedOn DESC LIMIT 10";
   try {
     const results = await new Promise((resolve, reject) => {
       dbConfig.query(sql, (error, results) => {
@@ -36,7 +36,6 @@ router.get("/", async (req, res) => {
     });
 
     const data = {
-      code: 200,
       data: results,
     };
 
@@ -105,26 +104,26 @@ router.get("/transaksi/export", async (req, res) => {
   }
 });
 
-router.get("/transaksi/summary", async (req, res) => {
+router.get("/summary", async (req, res) => {
   const currentSummarySql = `
-      SELECT 
-          COALESCE(SUM(amount), 0) as totalTariff,
-          COUNT(*) as totalTransactions
-      FROM tbl_transaksis
-      WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE());
-  `;
+        SELECT 
+            COALESCE(SUM(tariff), 0) as totalTariff,
+            COUNT(*) as totalTransactions
+        FROM SimulatorParking
+        WHERE MONTH(CreatedOn) = MONTH(CURDATE()) AND YEAR(CreatedOn) = YEAR(CURDATE());
+    `;
 
   const previousSummarySql = `
-      SELECT 
-          COALESCE(SUM(amount), 0) as totalTariff,
-          COUNT(*) AS transactions,
-          MONTH(created_at) AS month
-      FROM tbl_transaksis
-      WHERE 
-          created_at >= DATE_FORMAT(NOW(), '%Y-%m-01') - INTERVAL 3 MONTH
-          AND created_at < DATE_FORMAT(NOW(), '%Y-%m-01')
-      GROUP BY MONTH(created_at);
-  `;
+        SELECT 
+            COALESCE(SUM(tariff), 0) as totalTariff,
+            COUNT(*) AS transactions,
+            MONTH(CreatedOn) AS month
+        FROM SimulatorParking
+        WHERE 
+            CreatedOn >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH) 
+            AND CreatedOn < DATE_SUB(CURDATE(), INTERVAL 2 MONTH) 
+        GROUP BY MONTH(CreatedOn);
+    `;
 
   try {
     const currentResult = await new Promise((resolve, reject) => {
@@ -152,7 +151,7 @@ router.get("/transaksi/summary", async (req, res) => {
       previous: previousResult,
     };
 
-    io.emit("dataFromServer", data);
+    // io.emit("dataFromServer", data);
     response(200, data, "Successfully get summary data", res);
   } catch (error) {
     console.error(error);
@@ -161,9 +160,9 @@ router.get("/transaksi/summary", async (req, res) => {
 });
 
 router.get("/transactions", async (req, res) => {
-  const inTime = `SELECT COUNT(*) as total FROM tbl_transaksis WHERE inTime IS NOT NULL`;
-  const payTime = `SELECT COUNT(*) as total FROM tbl_transaksis WHERE payTime IS NOT NULL`;
-  const outTime = `SELECT COUNT(*) as total FROM tbl_transaksis WHERE outTime IS NOT NULL`;
+  const inTime = `SELECT COUNT(*) as total FROM SimulatorParking WHERE InTime IS NOT NULL`;
+  const payTime = `SELECT COUNT(*) as total FROM SimulatorParking WHERE Paymentdate IS NOT NULL`;
+  const outTime = `SELECT COUNT(*) as total FROM SimulatorParking WHERE OutTime IS NOT NULL`;
 
   try {
     const inTimeTrx = await new Promise((resolve, reject) => {
@@ -182,7 +181,7 @@ router.get("/transactions", async (req, res) => {
           reject(error);
           return;
         }
-        resolve(result[0]);
+        resolve(result);
       });
     });
 
@@ -192,7 +191,7 @@ router.get("/transactions", async (req, res) => {
           reject(error);
           return;
         }
-        resolve(result[0]);
+        resolve(result);
       });
     });
 
@@ -212,18 +211,18 @@ router.get("/transactions", async (req, res) => {
 
 router.get("/transaksi/weeklySumary", async (req, res) => {
   const totalTraffic = `SELECT
-          COUNT(*) AS totalTransactions
-      FROM
-          tbl_transaksis
-      WHERE
-          created_at BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()`;
+            COUNT(*) AS totalTransactions
+        FROM
+            SimulatorParking
+        WHERE
+            CreatedOn BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()`;
 
   const totalAmount = `SELECT
-          SUM(amount) AS totalAmount
-      FROM
-          tbl_transaksis
-      WHERE
-          created_at BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()`;
+            SUM(tariff) AS totalAmount
+        FROM
+            SimulatorParking
+        WHERE
+            CreatedOn BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()`;
 
   try {
     const traffic = await new Promise((resolve, reject) => {
@@ -265,7 +264,7 @@ io.on("connection", (socket) => {
 
   router.get("/", async (req, res) => {
     const sql =
-      "SELECT tbl_transaksis.id_transaksi, tbl_transaksis.type, tbl_lokasi.Name, tbl_transaksis.inTime,tbl_transaksis.outTime,tbl_transaksis.payTime, tbl_transaksis.amount FROM `tbl_transaksis` JOIN tbl_gate ON tbl_gate.id = tbl_transaksis.id_gate JOIN tbl_lokasi ON tbl_lokasi.id = tbl_gate.id_location ORDER BY created_at DESC LIMIT 10";
+      "SELECT SimulatorParking.TransactionNo, SimulatorParking.VehicleType, SimulatorParking.LocationName, SimulatorParking.InTime,SimulatorParking.OutTime,SimulatorParking.PaymentDate, SimulatorParking.tariff FROM `SimulatorParking` ORDER BY CreatedOn DESC LIMIT 10";
     try {
       const results = await new Promise((resolve, reject) => {
         dbConfig.query(sql, (error, results) => {
@@ -282,7 +281,7 @@ io.on("connection", (socket) => {
       };
 
       response(200, results, "Get data successfully", res);
-      io.emit("dataFromServer", data);
+      io.emit("dataAllRealtime", data);
     } catch (error) {
       console.error("Error fetching data:", error);
       response(500, error, "Internal Server Error", res);
@@ -292,22 +291,22 @@ io.on("connection", (socket) => {
   router.get("/summary", async (req, res) => {
     const currentSummarySql = `
           SELECT 
-              COALESCE(SUM(amount), 0) as totalTariff,
+              COALESCE(SUM(tariff), 0) as totalTariff,
               COUNT(*) as totalTransactions
-          FROM tbl_transaksis
-          WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE());
+          FROM SimulatorParking
+          WHERE MONTH(CreatedOn) = MONTH(CURDATE()) AND YEAR(CreatedOn) = YEAR(CURDATE());
       `;
 
     const previousSummarySql = `
           SELECT 
-              COALESCE(SUM(amount), 0) as totalTariff,
+              COALESCE(SUM(tariff), 0) as totalTariff,
               COUNT(*) AS transactions,
-              MONTH(created_at) AS month
-          FROM tbl_transaksis
+              MONTH(CreatedOn) AS month
+          FROM SimulatorParking
           WHERE 
-              created_at >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH) 
-              AND created_at < DATE_SUB(CURDATE(), INTERVAL 2 MONTH) 
-          GROUP BY MONTH(created_at);
+              CreatedOn >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH) 
+              AND CreatedOn < DATE_SUB(CURDATE(), INTERVAL 2 MONTH) 
+          GROUP BY MONTH(CreatedOn);
       `;
 
     try {
@@ -345,9 +344,9 @@ io.on("connection", (socket) => {
   });
 
   router.get("/transactions", async (req, res) => {
-    const inTime = `SELECT COUNT(*) as total FROM tbl_transaksis WHERE inTime IS NOT NULL`;
-    const payTime = `SELECT COUNT(*) as total FROM tbl_transaksis WHERE payTime IS NOT NULL`;
-    const outTime = `SELECT COUNT(*) as total FROM tbl_transaksis WHERE outTime IS NOT NULL`;
+    const inTime = `SELECT COUNT(*) as total FROM SimulatorParking WHERE InTime IS NOT NULL`;
+    const payTime = `SELECT COUNT(*) as total FROM SimulatorParking WHERE Paymentdate IS NOT NULL`;
+    const outTime = `SELECT COUNT(*) as total FROM SimulatorParking WHERE OutTime IS NOT NULL`;
 
     try {
       const inTimeTrx = await new Promise((resolve, reject) => {
@@ -394,20 +393,20 @@ io.on("connection", (socket) => {
     }
   });
 
-  router.get("/weeklySumary", async (req, res) => {
+  router.get("/transaksi/weeklySumary", async (req, res) => {
     const totalTraffic = `SELECT
               COUNT(*) AS totalTransactions
           FROM
-              tbl_transaksis
+              SimulatorParking
           WHERE
-              created_at BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()`;
+              CreatedOn BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()`;
 
     const totalAmount = `SELECT
-              SUM(amount) AS totalAmount
+              SUM(tariff) AS totalAmount
           FROM
-              tbl_transaksis
+              SimulatorParking
           WHERE
-              created_at BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()`;
+              CreatedOn BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()`;
 
     try {
       const traffic = await new Promise((resolve, reject) => {
