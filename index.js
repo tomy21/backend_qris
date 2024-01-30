@@ -10,7 +10,11 @@ const server = createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: ["http://127.0.0.1:3000"],
+    origin: [
+      process.env.CORS_URL_1,
+      process.env.CORS_URL_2,
+      process.env.CORS_URL_3,
+    ],
     methods: ["GET", "POST"],
   },
 });
@@ -36,6 +40,11 @@ app.get("/transaksi/weeklySumary", transaksi);
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
+  app.get("/", transaksi);
+  app.get("/transaksi/export", transaksi);
+  app.get("/transaksi/summary", transaksi);
+  app.get("/transactions", transaksi);
+  app.get("/transaksi/weeklySumary", transaksi);
 });
 
 const PORT = process.env.PORT || 3002; // Menggunakan variabel PORT

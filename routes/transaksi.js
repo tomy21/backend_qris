@@ -19,7 +19,7 @@ router.use(cors());
 
 router.get("/", async (req, res) => {
   const sql =
-    "SELECT SimulatorParking.TransactionNo, SimulatorParking.VehicleType, SimulatorParking.LocationName, SimulatorParking.InTime,SimulatorParking.OutTime,SimulatorParking.PaymentDate, SimulatorParking.tariff FROM `SimulatorParking` ORDER BY CreatedOn DESC LIMIT 10";
+    "SELECT SimulatorParking.TransactionNo, SimulatorParking.VehicleType, SimulatorParking.LocationName, SimulatorParking.InTime,SimulatorParking.OutTime,SimulatorParking.PaymentDate, SimulatorParking.tariff FROM `SimulatorParking` ORDER BY UpdatedOn DESC LIMIT 10";
   try {
     const results = await new Promise((resolve, reject) => {
       dbConfig.query(sql, (error, results) => {
